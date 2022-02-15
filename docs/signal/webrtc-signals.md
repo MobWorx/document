@@ -108,7 +108,7 @@ Error Ack
 
 ```json
 {
-  "c": 500 | 2001 | 2002 | 4001 | 4003 | 4051,
+  "c": 500 | 2001 | 2002 | 4001 | 4003,
   "b": {
     "s": "ANSWER",
     "d": {
@@ -126,7 +126,6 @@ Error Ack
 2002(UNSUPPORTED_CHANNEL): The signal is not supported in this channel.
 4001(ROOM_NOT_FOUND): The room doesn't exist.
 4003(RECIPIENT_NOT_MEMBER): The p2p peer user is not in the room.
-4051(PERMISSION_NOT_FOUND): The user doesn't have the permission, only publisher can send this signal.
 ```
 
 ### Ice Signal
@@ -159,7 +158,7 @@ Error Ack
 
 ```json
 {
-  "c": 500 | 2001 | 2002 | 4001 | 4003 | 4051,
+  "c": 500 | 2001 | 2002 | 4001 | 4003,
   "b": {
     "s": "ICE",
     "d": {
@@ -177,7 +176,6 @@ Error Ack
 2002(UNSUPPORTED_CHANNEL): The signal is not supported in this channel.
 4001(ROOM_NOT_FOUND): The room doesn't exist.
 4003(RECIPIENT_NOT_MEMBER): The p2p peer user is not in the room.
-4051(PERMISSION_NOT_FOUND): The user doesn't have the permission, only publisher can send this signal.
 ```
 
 ### Watch Signal
