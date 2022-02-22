@@ -228,7 +228,7 @@ Whenever publisher list change, inlcude video/audio status change, the server wi
   "s": "PUBLISH_LIST_CHANGED",
   "b": {
     // latest publisher list
-    "publisher": [
+    "pps": [
       {
         "id": String,
         "video": Bool,
