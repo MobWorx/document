@@ -1,35 +1,42 @@
 # WebRTC Signals
 
-> **Note**: Regarding on the Ack, in the previous version, we use signal name plus `ACK`, such as `JOIN_ACK`. But in the future version, we will just use signal name. So the ack for join signal will be same as signal name `JOIN`. All ack will contain code which can help clients to distinguish it from signals. For now, the client shall consider for both cases, therefore, `JOIN` and `JOIN_ACK` are both valid ack. we will deprecate `XXX_ACK` in the future.
+> **Note**: Regarding on the WebSocket Api Payload, different signal shall use different `action` and fill the signal to `data`. This is to meet the AWS ApiGateway requirement. This payload structure only apply when send the signal from the client to the signaling backend. In case of p2p signal forwarding, only the signal itself will be received by the peer, which meant you don't need to worry for decoding websocket payload structure in the client side.
 
 ### Offer Signal
 
 ```json
+// WebSocket Api Payload
 {
   "action": "offer",
-  "data": {
-    "s": "OFFER",
-    "ch": "m2m" | "a2m" | "p2p", // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    // create webrtc connection to this user. In p2p, this will be your peer user id. In m2m, this is self userId if you start your uplink connection as a publisher
-    "to": String, 
-    "sdp": String, // SDP offer
-    // optional info
-    "op": {
-      "restarting": Bool, // must by true if you restarting the uplink connection
-      "hlsForwarding": Bool // enable hls forwarding for this stream
-    }
+  "data": {...}
+}
+```
+
+
+```json
+// Signal Structure(data)
+{
+  "s": "OFFER",
+  "ch": "m2m" | "a2m" | "p2p", // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  // create webrtc connection to this user. In p2p, this will be your peer user id. In m2m, this is self userId if you start your uplink connection as a publisher
+  "to": String, 
+  "sdp": String, // SDP offer
+  // optional info
+  "op": {
+    "restarting": Bool, // must by true if you restarting the uplink connection
+    "hlsForwarding": Bool // enable hls forwarding for this stream
   }
 }
 ```
@@ -42,14 +49,11 @@ This is used in m2m and a2m when a publisher start their own uplink connection b
 ```json
 {
   "c": 200,
+  "s": "OFFER",
   "b": {
-    "s": "OFFER_ACK", // will be "OFFER" in next version
-    "d": {
-      "rid": String,
-      "sdp": String // SDP answer, use this to create webrtc connection
-    }
-  },
-  "ch": "m2m" | "a2m", // room type
+    "rid": String,
+    "sdp": String // SDP answer, use this to create webrtc connection
+  }
 }
 ```
 
@@ -58,14 +62,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 2002 | 4001 | 4003 | 4051,
+  "s": "OFFER",
   "b": {
-    "s": "OFFER_ACK", // will be "OFFER" in next version
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "p2p" | "a2m", // room type
+    "rid": String,
+    "msg": String
+  }
 }
 ```
 
@@ -81,26 +82,32 @@ Error Ack
 ### Answer Signal
 
 ```json
+// WebSocket Api Payload
 {
   "action": "answer",
-  "data": {
-    "s": "ANSWER",
-    "ch": "m2m" | "a2m" | "p2p", // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    "to": String, // create webrtc connection to this user id
-    "sdp": String, // SDP answer
-  }
+  "data": {...}
+}
+```
+
+```json
+// Signal Structure(data)
+{
+  "s": "ANSWER",
+  "ch": "m2m" | "a2m" | "p2p", // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  "to": String, // create webrtc connection to this user id
+  "sdp": String // SDP answer
 }
 ```
 
@@ -109,14 +116,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 2002 | 4001 | 4003,
+  "s": "ANSWER",
   "b": {
-    "s": "ANSWER",
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "p2p" | "a2m", // room type
+    "rid": String,
+    "msg": String
+  }
 }
 ```
 
@@ -131,26 +135,32 @@ Error Ack
 ### Ice Signal
 
 ```json
+// WebSocket Api Payload
 {
   "action": "iceCandidate",
-  "data": {
-    "s": "ICE",
-    "ch": "m2m" | "a2m" | "p2p", // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    "to": String, // webrtc connection with this user id
-    "sdp": String, // ice candidate
-  }
+  "data": {...}
+}
+```
+
+```json
+// Signal Structure(data)
+{
+  "s": "ICE",
+  "ch": "m2m" | "a2m" | "p2p", // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  "to": String, // webrtc connection with this user id
+  "sdp": String // ice candidate
 }
 ```
 
@@ -159,14 +169,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 2002 | 4001 | 4003,
+  "s": "ICE",
   "b": {
-    "s": "ICE",
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "p2p" | "a2m", // room type
+    "rid": String,
+    "msg": String
+  }
 }
 ```
 
@@ -183,25 +190,31 @@ Error Ack
 Request the backend to provide offer SDP
 
 ```json
+// WebSocket Api Payload
 {
   "action": "watch",
-  "data": {
-    "s": "WATCH",
-    "ch": "m2m" | "a2m" , // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    "to": String // the user to create connectino with
-  }
+  "data": {...}
+}
+```
+
+```json
+// Signal Structure(data)
+{
+  "s": "WATCH",
+  "ch": "m2m" | "a2m" , // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  "to": String // the user to create connectino with
 }
 ```
 
@@ -212,28 +225,25 @@ Contain the offer SDP for webrtc connection
 ```json
 {
   "c": 200,
+  "s": "WATCH",
   "b": {
-    "s": "WATCH_ACK", // will be "WATCH" in next version
-    "d": {
-      "pps": [
-        {
-          "id": String,
-          "sdp": String, // SDP offer, use this to create webrtc connection
-          "video": Bool,
-          "audio": Bool,
-          "username": String,
-          "fullname": String,
-          "avatar": String, // avatar url
-          "sessionId": String,
-          "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-          "category": "stream" | "screenshare",
-          "deviceId": String
-        }
-      ],
-      "rid": String
-    }
-  },
-  "ch": "m2m" | "a2m", // room type
+    "pps": [
+      {
+        "id": String,
+        "sdp": String, // SDP offer, use this to create webrtc connection
+        "video": Bool,
+        "audio": Bool,
+        "username": String,
+        "fullname": String,
+        "avatar": String, // avatar url
+        "sessionId": String,
+        "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+        "category": "stream" | "screenshare",
+        "deviceId": String
+      }
+    ],
+    "rid": String
+  }
 }
 ```
 
@@ -242,14 +252,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 2002 | 4001,
+  "s": "WATCH",
   "b": {
-    "s": "ANSWER",
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "p2p" | "a2m", // room type
+    "rid": String,
+    "msg": String
+  }
 }
 ```
 

@@ -2,7 +2,7 @@
 
 Common signals for room control.
 
-> **Note**: Regarding on the Ack, in the previous version, we use signal name plus `ACK`, such as `JOIN_ACK`. But in the future version, we will just use signal name. So the ack for join signal will be same as signal name `JOIN`. All ack will contain code which can help clients to distinguish it from signals. For now, the client shall consider for both cases, therefore, `JOIN` and `JOIN_ACK` are both valid ack. we will deprecate `XXX_ACK` in the future.
+> **Note**: Regarding on the WebSocket Api Payload, different signal shall use different `action` and fill the signal to `data`. This is to meet the AWS ApiGateway requirement. This payload structure only apply when send the signal from the client to the signaling backend. In case of p2p signal forwarding, only the signal itself will be received by the peer, which meant you don't need to worry for decoding websocket payload structure in the client side.
 
 ## Room Operation Signals
 
@@ -13,31 +13,38 @@ These signals are used for all rooms.
 This is the first signal that you need to send.
 
 ```json
+// WebSocket Api Payload
 {
   "action": "join",
-  "data": {
-    "s": "JOIN",
-    "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    "ve": Bool, // video enabled
-    "ae": Bool, // audio enabled
-    "eg": "native" | "agora", // which stream engine client want to use
-    // optional info
-    "op": {
-      "roomCreating": Bool, // must by true if you start the room
-      "userFaking": Bool // convenient for testing which allow userId to be random
-    }
+  "data": {...}
+}
+```
+
+
+```json
+// Signal Structure(data)
+{
+  "s": "JOIN",
+  "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  "ve": Bool, // video enabled
+  "ae": Bool, // audio enabled
+  "eg": "native" | "agora", // which stream engine client want to use
+  // optional info
+  "op": {
+    "roomCreating": Bool, // must by true if you start the room
+    "userFaking": Bool // convenient for testing which allow userId to be random
   }
 }
 ```
@@ -49,39 +56,36 @@ The server will return room info and publisher list.
 ```json
 {
   "c": 200,
+  "s": "JOIN",
   "b": {
-    "s": "JOIN_ACK", // will be "JOIN" in next version
-    "d": {
-      "pps": [
-        {
-          "id": String,
-          "sdp": String, // SDP offer, use this to create webrtc connection
-          "video": Bool,
-          "audio": Bool,
-          "username": String,
-          "fullname": String,
-          "avatar": String, // avatar url
-          "sessionId": String,
-          "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-          "category": "stream" | "screenshare",
-          "deviceId": String
-        }
-      ],
-      "rid": String,
-      // This is your role determind by the server. you can start stream if you are the publisher.
-      "pt": "publisher" | "viewer",
-      // Which stream engine client want to use, determind by the server.
-      "eg": "native" | "agora",
-      // For webrtc, this is the stun server url you shall use
-      "icfg": {
-        "is": [
-          "stun:stun.l.google.com:19302",
-          "stun:stun2.l.google.com:19302"
-        ]
+    "pps": [
+      {
+        "id": String,
+        "sdp": String, // SDP offer, use this to create webrtc connection
+        "video": Bool,
+        "audio": Bool,
+        "username": String,
+        "fullname": String,
+        "avatar": String, // avatar url
+        "sessionId": String,
+        "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+        "category": "stream" | "screenshare",
+        "deviceId": String
       }
+    ],
+    "rid": String,
+    // This is your role determind by the server. you can start stream if you are the publisher.
+    "pt": "publisher" | "viewer",
+    // Which stream engine client want to use, determind by the server.
+    "eg": "native" | "agora",
+    // For webrtc, this is the stun server url you shall use
+    "icfg": {
+      "is": [
+        "stun:stun.l.google.com:19302",
+        "stun:stun2.l.google.com:19302"
+      ]
     }
-  },
-  "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
+  }
 }
 ```
 
@@ -90,14 +94,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 2002 | 4001 | 4022,
+  "s": "JOIN",
   "b": {
-    "s": "JOIN_ACK", // will be "JOIN" in next version
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
+    "rid": String,
+    "msg": String
+  }
 }
 ```
 
@@ -114,25 +115,31 @@ Error Ack
 Send this signal when leave the room so that backend can clean up the resource.
 
 ```json
+// WebSocket Api Payload
 {
   "action": "leave",
-  "data": {
-    "s": "LEAVE",
-    "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    "to": String // in p2p, this is the peer id
-  }
+  "data": {...}
+}
+```
+
+```json
+// Signal Structure(data)
+{
+  "s": "LEAVE",
+  "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  "to": String // in p2p, this is the peer id
 }
 ```
 
@@ -141,14 +148,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 2002 | 4001,
+  "s": "leave",
   "b": {
-    "s": "leave",
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
+   "rid": String,
+    "msg": String
+  }
 }
 ```
 
@@ -164,26 +168,32 @@ Error Ack
 When the publisher change video and audio status, send this signal to notify the backend.
 
 ```json
+// WebSocket Api Payload
 {
   "action": "updateVideo",
-  "data": {
-    "s": "UPDATE",
-    "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    "ve": Bool, // video enabled
-    "ae": Bool // audio enabled
-  }
+  "data": {...}
+}
+```
+
+```json
+// Signal Structure(data)
+{
+  "s": "UPDATE",
+  "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  "ve": Bool, // video enabled
+  "ae": Bool // audio enabled
 }
 ```
 
@@ -192,14 +202,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 2002 | 4001 | 4051,
+  "s": "UPDATE",
   "b": {
-    "s": "UPDATE",
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
+    "rid": String,
+    "msg": String
+  }
 }
 ```
 
@@ -218,28 +225,25 @@ Whenever publisher list change, inlcude video/audio status change, the server wi
 ```json
 {
   "c": 200,
+  "s": "PUBLISH_LIST_CHANGED",
   "b": {
-    "s": "PUBLISH_LIST_CHANGED_ACK", // will be "PUBLISH_LIST_CHANGED" in next version
-    "d": {
-      // latest publisher list
-      "publisher": [
-        {
-          "id": String,
-          "video": Bool,
-          "audio": Bool,
-          "username": String,
-          "fullname": String,
-          "avatar": String, // avatar url
-          "sessionId": String,
-          "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-          "category": "stream" | "screenshare",
-          "deviceId": String
-        }
-      ],
-      "rid": String
-    }
-  },
-  "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
+    // latest publisher list
+    "publisher": [
+      {
+        "id": String,
+        "video": Bool,
+        "audio": Bool,
+        "username": String,
+        "fullname": String,
+        "avatar": String, // avatar url
+        "sessionId": String,
+        "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+        "category": "stream" | "screenshare",
+        "deviceId": String
+      }
+    ],
+    "rid": String
+  }
 }
 ```
 
@@ -248,26 +252,32 @@ Whenever publisher list change, inlcude video/audio status change, the server wi
 Send this signal to keep the client presence in current room.
 
 ```json
+// WebSocket Api Payload
 {
   "action": "heartbeat",
-  "data": {
-    "s": "HEARTBEAT",
-    "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    "bid": String, // heartbeat id
-    "send_ack": Bool // flag, whether server shall send back ack
-  }
+  "data": {...}
+}
+```
+
+```json
+// Signal Structure(data)
+{
+  "s": "HEARTBEAT",
+  "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  "bid": String, // heartbeat id
+  "send_ack": Bool // flag, whether server shall send back ack
 }
 ```
 
@@ -278,28 +288,25 @@ The server will send back latest publisher list along with the ack.
 ```json
 {
   "c": 200,
+  "s": "HEARTBEAT",
   "b": {
-    "s": "HEARTBEAT_ACK", // will be "HEARTBEAT" in next version
-    "d": {
-      "pps": [
-        {
-          "id": String,
-          "video": Bool,
-          "audio": Bool,
-          "username": String,
-          "fullname": String,
-          "avatar": String, // avatar url
-          "sessionId": String,
-          "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-          "category": "stream" | "screenshare",
-          "deviceId": String
-        }
-      ],
-      "rid": String, // room id
-      "bid": String // heartbeat id
-    }
-  },
-  "ch": "m2m" | "p2p" | "a2m" | "p2m", // room type
+    "pps": [
+      {
+        "id": String,
+        "video": Bool,
+        "audio": Bool,
+        "username": String,
+        "fullname": String,
+        "avatar": String, // avatar url
+        "sessionId": String,
+        "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+        "category": "stream" | "screenshare",
+        "deviceId": String
+      }
+    ],
+    "rid": String, // room id
+    "bid": String // heartbeat id
+  }
 }
 ```
 
@@ -308,14 +315,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 4001,
+  "s": "HEARTBEAT",
   "b": {
-    "s": "HEARTBEAT_ACK", // will be "HEARTBEAT" in next version
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "p2p" | "a2m", // room type
+    "rid": String,
+    "msg": String
+  }
 }
 ```
 
@@ -332,25 +336,31 @@ Error Ack
 Remove a user from the room.
 
 ```json
+// WebSocket Api Payload
 {
   "action": "kick",
-  "data": {
-    "s": "KICK",
-    "ch": "m2m" | "a2m" | "p2m", // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    "to": String // the user id which shall be kicked
-  }
+  "data": {...}
+}
+```
+
+```json
+// Signal Structure(data)
+{
+  "s": "KICK",
+  "ch": "m2m" | "a2m" | "p2m", // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  "to": String // the user id which shall be kicked
 }
 ```
 
@@ -359,14 +369,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 2002 | 4001 | 4051,
+  "s": "KICK",
   "b": {
-    "s": "KICK",
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "a2m" | "p2m", // room type
+    "rid": String,
+    "msg": String
+  }
 }
 ```
 
@@ -385,27 +392,34 @@ Error Ack
 The viewer can request to promote their status to publisher. The signal will be forwarded to the current room owner.
 
 ```json
+// WebSocket Api Payload
 {
   "action": "publishRequest",
-  "data": {
-    "s": "PUBLISH_REQUEST",
-    "ch": "m2m" | "a2m", // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    "ve": Bool, // video enabled
-    "ae": Bool, // audio enabled
-    "msg": String // deprecated, message sent to the owner
-  }
+  "data": {...}
+}
+```
+
+```json
+// Signal Structure(data)
+{
+  "action": "publishRequest",
+  "s": "PUBLISH_REQUEST",
+  "ch": "m2m" | "a2m", // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  "ve": Bool, // video enabled
+  "ae": Bool, // audio enabled
+  "msg": String // deprecated, message sent to the owner
 }
 ```
 
@@ -414,14 +428,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 2002 | 4001 | 4023,
+  "s": "PUBLISH_REQUEST",
   "b": {
-    "s": "PUBLISH_REQUEST",
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "a2m", // room type
+    "rid": String,
+    "msg": String
+  }
 }
 ```
 
@@ -438,25 +449,31 @@ Error Ack
 The owner accept the publish request. The backend will promote the viewer status to publisher and forward this signal to the new publisher. Upon recive this signal, the new publisher can start to publish stream.
 
 ```json
+// WebSocket Api Payload
 {
   "action": "publishAccept",
-  "data": {
-    "s": "PUBLISH_ACCEPT",
-    "ch": "m2m" | "a2m", // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    "to": String // the user who request to be a publisher
-  }
+  "data": {...}
+}
+```
+
+```json
+// Signal Structure(data)
+{
+  "s": "PUBLISH_ACCEPT",
+  "ch": "m2m" | "a2m", // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  "to": String // the user who request to be a publisher
 }
 ```
 
@@ -465,14 +482,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 2002 | 4001 | 4002 | 4051,
+  "s": "PUBLISH_ACCEPT",
   "b": {
-    "s": "PUBLISH_ACCEPT",
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "a2m", // room type
+    "rid": String,
+    "msg": String
+  }
 }
 ```
 
@@ -490,25 +504,31 @@ Error Ack
 The owner reject the publish request. he backend will forward this signal to the viewer.
 
 ```json
+// WebSocket Api Payload
 {
   "action": "publishReject",
-  "data": {
-    "s": "PUBLISH_REJECT",
-    "ch": "m2m" | "a2m", // room type
-    // session info
-    "ss": {
-      "userId": String,
-      "sessionId": String,
-      // Session category
-      "category": "stream" | "screenshare",
-      // Device type
-      "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-      "deviceId": String
-    },
-    "uid": String, // deprecated, in favor of "ss"
-    "rid": String, // room id
-    "to": String // the user who request to be a publisher
-  }
+  "data": {...}
+}
+```
+
+```json
+// Signal Structure(data)
+{
+  "s": "PUBLISH_REJECT",
+  "ch": "m2m" | "a2m", // room type
+  // session info
+  "ss": {
+    "userId": String,
+    "sessionId": String,
+    // Session category
+    "category": "stream" | "screenshare",
+    // Device type
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "deviceId": String
+  },
+  "uid": String, // deprecated, in favor of "ss"
+  "rid": String, // room id
+  "to": String // the user who request to be a publisher
 }
 ```
 
@@ -517,14 +537,11 @@ Error Ack
 ```json
 {
   "c": 500 | 2001 | 2002 | 4001 | 4002,
+  "s": "PUBLISH_REJECT", 
   "b": {
-    "s": "PUBLISH_REJECT", 
-    "d": {
-      "rid": String,
-      "msg": String
-    }
-  },
-  "ch": "m2m" | "a2m", // room type
+    "rid": String,
+    "msg": String
+  }
 }
 ```
 

@@ -20,6 +20,14 @@ graph LR
 
 The client can use any standard websocket client library to connect to the signaling server. Our signaling server is based on aws apigateway so it's [limiations](https://docs.aws.amazon.com/apigateway/latest/developerguide/limits.html#apigateway-execution-service-websocket-limits-table) apply to us.
 
+The payload sent to the signaling server need to have the following format:
+```json
+{
+  "action": String,
+  "data": {...}
+}
+```
+
 ### Keepalive
 
 The apigateway websocket has a 10 minutes idle connection timeout. To keep the connection alive, the backend will send keepalive signal to the client to keep the connection alive. Client doesn't need to send back anything in this case.
