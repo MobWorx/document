@@ -64,7 +64,8 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4003 | 4051,
   "s": "OFFER",
   "b": {
-    "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }
@@ -118,7 +119,8 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4003,
   "s": "ANSWER",
   "b": {
-    "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }
@@ -171,7 +173,8 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4003,
   "s": "ICE",
   "b": {
-    "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }
@@ -254,7 +257,8 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001,
   "s": "WATCH",
   "b": {
-    "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }

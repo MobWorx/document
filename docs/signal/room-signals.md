@@ -96,7 +96,8 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4022,
   "s": "JOIN",
   "b": {
-    "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }
@@ -150,7 +151,8 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001,
   "s": "leave",
   "b": {
-   "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }
@@ -204,7 +206,8 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4051,
   "s": "UPDATE",
   "b": {
-    "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }
@@ -317,7 +320,8 @@ Error Ack
   "c": 500 | 2001 | 4001,
   "s": "HEARTBEAT",
   "b": {
-    "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }
@@ -371,7 +375,8 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4051,
   "s": "KICK",
   "b": {
-    "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }
@@ -430,7 +435,8 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4023,
   "s": "PUBLISH_REQUEST",
   "b": {
-    "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }
@@ -484,7 +490,8 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4002 | 4051,
   "s": "PUBLISH_ACCEPT",
   "b": {
-    "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }
@@ -539,7 +546,8 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4002,
   "s": "PUBLISH_REJECT", 
   "b": {
-    "rid": String,
+    "rid": String, // deprecated later, in favor of "req"
+    "req": {...}, // original signal
     "msg": String
   }
 }
