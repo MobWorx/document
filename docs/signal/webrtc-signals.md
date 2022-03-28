@@ -116,7 +116,7 @@ Error Ack
 
 ```json
 {
-  "c": 500 | 2001 | 2002 | 4001 | 4003,
+  "c": 500 | 2001 | 2002 | 4001 | 4003 | 4024,
   "s": "ANSWER",
   "b": {
     "rid": String, // deprecated later, in favor of "req"
@@ -132,6 +132,7 @@ Error Ack
 2002(UNSUPPORTED_CHANNEL): The signal is not supported in this channel.
 4001(ROOM_NOT_FOUND): The room doesn't exist.
 4003(RECIPIENT_NOT_MEMBER): The p2p peer user is not in the room.
+4024(USER_LEFT): The user has left the room.
 ```
 
 ### Ice Signal
@@ -254,7 +255,7 @@ Error Ack
 
 ```json
 {
-  "c": 500 | 2001 | 2002 | 4001,
+  "c": 500 | 2001 | 2002 | 4001 | 4024,
   "s": "WATCH",
   "b": {
     "rid": String, // deprecated later, in favor of "req"
@@ -269,4 +270,5 @@ Error Ack
 2001(INVALID_SIGNAL): The signal is invalid.
 2002(UNSUPPORTED_CHANNEL): The signal is not supported in this channel.
 4001(ROOM_NOT_FOUND): The room doesn't exist.
+4024(USER_LEFT): The user has left the room.
 ```
