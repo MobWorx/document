@@ -36,7 +36,6 @@ This is the first signal that you need to send.
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
   "ve": Bool, // video enabled
   "ae": Bool, // audio enabled
@@ -96,7 +95,6 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4022,
   "s": "JOIN",
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }
@@ -138,9 +136,8 @@ Send this signal when leave the room so that backend can clean up the resource.
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
-  "to": String // in p2p, this is the peer id
+  "to": String // deprecated, no longer needed
 }
 ```
 
@@ -151,7 +148,6 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001,
   "s": "leave",
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }
@@ -192,7 +188,6 @@ When the publisher change video and audio status, send this signal to notify the
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
   "ve": Bool, // video enabled
   "ae": Bool // audio enabled
@@ -206,7 +201,6 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4051,
   "s": "UPDATE",
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }
@@ -277,7 +271,6 @@ Send this signal to keep the client presence in current room.
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
   "bid": String, // heartbeat id
   "send_ack": Bool // flag, whether server shall send back ack
@@ -320,7 +313,6 @@ Error Ack
   "c": 500 | 2001 | 4001,
   "s": "HEARTBEAT",
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }
@@ -362,9 +354,13 @@ Remove a user from the room.
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
-  "to": String // the user id which shall be kicked
+  // if to == string(userId): all sessions with this user id will be kicked
+  // if to == object: only the session with this session id will be kicked
+  "to": {
+    "userId": String, // the user id which shall be kicked
+    "sessionId": String, // the session id which shall be kicked
+  } | String
 }
 ```
 
@@ -375,7 +371,6 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4051,
   "s": "KICK",
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }
@@ -420,7 +415,6 @@ The viewer can request to promote their status to publisher. The signal will be 
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
   "ve": Bool, // video enabled
   "ae": Bool, // audio enabled
@@ -435,7 +429,6 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4023,
   "s": "PUBLISH_REQUEST",
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }
@@ -477,9 +470,13 @@ The owner accept the publish request. The backend will promote the viewer status
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
-  "to": String // the user who request to be a publisher
+  // if to == string(userId): all sessions with this user id will be accepted
+  // if to == object: only the session with this session id will be accepted
+  "to": {
+    "userId": String, // the user id which shall be accepted
+    "sessionId": String, // the session id which shall be accepted
+  } | String
 }
 ```
 
@@ -490,7 +487,6 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4002 | 4051,
   "s": "PUBLISH_ACCEPT",
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }
@@ -533,9 +529,13 @@ The owner reject the publish request. he backend will forward this signal to the
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
-  "to": String // the user who request to be a publisher
+  // if to == string(userId): all sessions with this user id will be rejected
+  // if to == object: only the session with this session id will be rejected
+  "to": {
+    "userId": String, // the user id which shall be rejected
+    "sessionId": String, // the session id which shall be rejected
+  } | String
 }
 ```
 
@@ -546,7 +546,6 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4002,
   "s": "PUBLISH_REJECT", 
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }

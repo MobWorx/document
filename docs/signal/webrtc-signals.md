@@ -28,10 +28,9 @@
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
-  // create webrtc connection to this user. In p2p, this will be your peer user id. In m2m, this is self userId if you start your uplink connection as a publisher
-  "to": String, 
+  // create webrtc connection to this session. In p2p, you can use just peer user id. In m2m, sessionId and userId if you start your uplink connection as a publisher
+  "to": String, // deprecated, no longer needed
   "sdp": String, // SDP offer
   // optional info
   "op": {
@@ -64,7 +63,6 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4003 | 4051,
   "s": "OFFER",
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }
@@ -105,9 +103,13 @@ Error Ack
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
-  "to": String, // create webrtc connection to this user id
+  // if to == string(userId): p2p only
+  // if to == object: m2m, a2m, p2p, send answer to session
+  "to": {
+    "userId": String, // the user id which shall be answered
+    "sessionId": String, // the session id which shall be answered
+  } | String,
   "sdp": String // SDP answer
 }
 ```
@@ -119,7 +121,6 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4003 | 4024,
   "s": "ANSWER",
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }
@@ -160,9 +161,13 @@ Error Ack
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
-  "to": String, // webrtc connection with this user id
+  // if to == string(userId): p2p only
+  // if to == object: m2m, a2m, p2p, send ice to session
+  "to": {
+    "userId": String, // the user id which shall be sent
+    "sessionId": String, // the session id which shall be sent
+  } | String,
   "sdp": String // ice candidate
 }
 ```
@@ -174,7 +179,6 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4003,
   "s": "ICE",
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }
@@ -216,9 +220,11 @@ Request the backend to provide offer SDP
     "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
     "deviceId": String
   },
-  "uid": String, // deprecated, in favor of "ss"
   "rid": String, // room id
-  "to": String // the user to create connectino with
+  "to": {
+    "userId": String, // the user id which shall be watched
+    "sessionId": String, // the session id which shall be watched
+  }
 }
 ```
 
@@ -258,7 +264,6 @@ Error Ack
   "c": 500 | 2001 | 2002 | 4001 | 4024,
   "s": "WATCH",
   "b": {
-    "rid": String, // deprecated later, in favor of "req"
     "req": {...}, // original signal
     "msg": String
   }
