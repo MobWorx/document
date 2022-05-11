@@ -48,6 +48,31 @@ This is the first signal that you need to send.
 }
 ```
 
+```json
+// Example
+{
+  "action": "join",
+  "data": {
+    "ss": {
+      "userId": "b4044fc2-1329-4de1-85e5-95f2229dcef3",
+      "host": "iOS",
+      "category": "stream",
+      "deviceId": "B2DC9D27-93BC-45E9-A2A9-4C3B60FCC9F6",
+      "sessionId": "22718907-D43A-46DA-95A1-DEFC73047715"
+    },
+    "op": {
+      "roomCreating": true
+    },
+    "ch": "m2m",
+    "rid": "eca0609f-cf5d-42be-b4e2-dba0fa05f2e4",
+    "s": "JOIN",
+    "ve": true,
+    "eg": "native",
+    "ae": true
+  }
+}
+```
+
 ### Join Ack
 
 The server will return room info and publisher list.
@@ -138,6 +163,26 @@ Send this signal when leave the room so that backend can clean up the resource.
   },
   "rid": String, // room id
   "to": String // deprecated, no longer needed
+}
+```
+
+```json
+// Example:
+{
+  "data": {
+    "s": "LEAVE",
+    "rid": "eca0609f-cf5d-42be-b4e2-dba0fa05f2e4",
+    "to": "b4044fc2-1329-4de1-85e5-95f2229dcef3",
+    "ss": {
+      "category": "stream",
+      "deviceId": "B2DC9D27-93BC-45E9-A2A9-4C3B60FCC9F6",
+      "host": "iOS",
+      "userId": "b4044fc2-1329-4de1-85e5-95f2229dcef3",
+      "sessionId": "22718907-D43A-46DA-95A1-DEFC73047715"
+    },
+    "ch": "m2m"
+  },
+  "action": "leave"
 }
 ```
 
@@ -274,6 +319,26 @@ Send this signal to keep the client presence in current room.
   "rid": String, // room id
   "bid": String, // heartbeat id
   "send_ack": Bool // flag, whether server shall send back ack
+}
+```
+```json
+// Example
+{
+  "action": "heartbeat",
+  "data": {
+    "send_ack": true,
+    "bid": "03DE2F3D-C710-4201-81A3-33AED4080B51",
+    "ss": {
+      "deviceId": "B2DC9D27-93BC-45E9-A2A9-4C3B60FCC9F6",
+      "userId": "b4044fc2-1329-4de1-85e5-95f2229dcef3",
+      "category": "stream",
+      "host": "iOS",
+      "sessionId": "22718907-D43A-46DA-95A1-DEFC73047715"
+    },
+    "rid": "eca0609f-cf5d-42be-b4e2-dba0fa05f2e4",
+    "ch": "m2m",
+    "s": "HEARTBEAT"
+  }
 }
 ```
 

@@ -40,6 +40,31 @@
 }
 ```
 
+```json
+// Example
+{
+  "data": {
+    "rid": "eca0609f-cf5d-42be-b4e2-dba0fa05f2e4",
+    "to": "b4044fc2-1329-4de1-85e5-95f2229dcef3",
+    "ss": {
+      "userId": "b4044fc2-1329-4de1-85e5-95f2229dcef3",
+      "host": "iOS",
+      "category": "stream",
+      "sessionId": "22718907-D43A-46DA-95A1-DEFC73047715",
+      "deviceId": "B2DC9D27-93BC-45E9-A2A9-4C3B60FCC9F6"
+    },
+    "ch": "m2m",
+    "sdp": "v=0\r\no=- 3002825352830109796 2 IN IP4 127.0.0.1\r\ns=-\r\nt=0 0\r\na=group:BUNDLE...",
+    "s": "OFFER",
+    "op": {
+      "restarting": false,
+      "hlsForwarding": false
+    }
+  },
+  "action": "offer"
+}
+```
+
 ### Offer Ack
 
 This is used in m2m and a2m when a publisher start their own uplink connection by send an offer signal.
