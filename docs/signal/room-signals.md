@@ -39,7 +39,7 @@ This is the first signal that you need to send.
   "rid": String, // room id
   "ve": Bool, // video enabled
   "ae": Bool, // audio enabled
-  "eg": "native" | "agora", // which stream engine client want to use
+  "eg": "native" | "agora" | "hundredms" | "livekit", // which stream engine client want to use
   // optional info
   "op": {
     "roomCreating": Bool, // must by true if you start the room
