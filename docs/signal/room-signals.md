@@ -33,7 +33,7 @@ This is the first signal that you need to send.
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
@@ -85,29 +85,38 @@ The server will return room info and publisher list.
     "pps": [
       {
         "id": String,
-        "sdp": String, // SDP offer, use this to create webrtc connection
+        "role": "admin" | "publisher" | "viewer",
         "video": Bool,
         "audio": Bool,
-        "username": String,
-        "fullname": String,
-        "avatar": String, // avatar url
-        "sessionId": String,
-        "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+        "publish": Bool,
+        "userId": String,
+        "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
         "category": "stream" | "screenshare",
         "deviceId": String
       }
     ],
     "rid": String,
-    // This is your role determind by the server. you can start stream if you are the publisher.
-    "pt": "publisher" | "viewer",
+    // This is your role determind by the server. you can start stream if you are the publisher. Admin can kick user out.
+    "pt": "admin" | "publisher" | "viewer",
     // Which stream engine client want to use, determind by the server.
     "eg": "native" | "agora",
-    // For webrtc, this is the stun server url you shall use
-    "icfg": {
-      "is": [
-        "stun:stun.l.google.com:19302",
-        "stun:stun2.l.google.com:19302"
-      ]
+    // Engine specific properties
+    "es": {
+      // For native, this is the stun server url you shall use
+      "icfg": {
+        "is": [
+          "stun:stun.l.google.com:19302",
+          "stun:stun2.l.google.com:19302"
+        ]
+      },
+      "sdps": {
+        "id": String, // sessionId of the publisher, match with pps
+        "sdp": String // SDP offer, use this to create webrtc connection
+      }
+      // For hundredms
+      "roomId": String, // hundredms room id
+      "role": "host" | "guest", // hundredms role
+      "token": String // auth token
     }
   }
 }
@@ -158,11 +167,10 @@ Send this signal when leave the room so that backend can clean up the resource.
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
-  "to": String // deprecated, no longer needed
 }
 ```
 
@@ -172,7 +180,6 @@ Send this signal when leave the room so that backend can clean up the resource.
   "data": {
     "s": "LEAVE",
     "rid": "eca0609f-cf5d-42be-b4e2-dba0fa05f2e4",
-    "to": "b4044fc2-1329-4de1-85e5-95f2229dcef3",
     "ss": {
       "category": "stream",
       "deviceId": "B2DC9D27-93BC-45E9-A2A9-4C3B60FCC9F6",
@@ -230,7 +237,7 @@ When the publisher change video and audio status, send this signal to notify the
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
@@ -279,7 +286,7 @@ Whenever publisher list change, inlcude video/audio status change, the server wi
         "fullname": String,
         "avatar": String, // avatar url
         "sessionId": String,
-        "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+        "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
         "category": "stream" | "screenshare",
         "deviceId": String
       }
@@ -313,7 +320,7 @@ Send this signal to keep the client presence in current room.
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
@@ -354,13 +361,12 @@ The server will send back latest publisher list along with the ack.
     "pps": [
       {
         "id": String,
+        "role": "admin" | "publisher" | "viewer",
         "video": Bool,
         "audio": Bool,
-        "username": String,
-        "fullname": String,
-        "avatar": String, // avatar url
-        "sessionId": String,
-        "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+        "publish": Bool,
+        "userId": String,
+        "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
         "category": "stream" | "screenshare",
         "deviceId": String
       }
@@ -416,7 +422,7 @@ Remove a user from the room.
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
@@ -425,7 +431,7 @@ Remove a user from the room.
   "to": {
     "userId": String, // the user id which shall be kicked
     "sessionId": String, // the session id which shall be kicked
-  } | String
+  }
 }
 ```
 
@@ -477,7 +483,7 @@ The viewer can request to promote their status to publisher. The signal will be 
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
@@ -532,7 +538,7 @@ The owner accept the publish request. The backend will promote the viewer status
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
@@ -541,7 +547,7 @@ The owner accept the publish request. The backend will promote the viewer status
   "to": {
     "userId": String, // the user id which shall be accepted
     "sessionId": String, // the session id which shall be accepted
-  } | String
+  }
 }
 ```
 
@@ -591,7 +597,7 @@ The owner reject the publish request. he backend will forward this signal to the
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
@@ -600,7 +606,7 @@ The owner reject the publish request. he backend will forward this signal to the
   "to": {
     "userId": String, // the user id which shall be rejected
     "sessionId": String, // the session id which shall be rejected
-  } | String
+  }
 }
 ```
 

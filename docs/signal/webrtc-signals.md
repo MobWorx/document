@@ -25,12 +25,11 @@
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
   // create webrtc connection to this session. In p2p, you can use just peer user id. In m2m, sessionId and userId if you start your uplink connection as a publisher
-  "to": String, // deprecated, no longer needed
   "sdp": String, // SDP offer
   // optional info
   "op": {
@@ -45,7 +44,6 @@
 {
   "data": {
     "rid": "eca0609f-cf5d-42be-b4e2-dba0fa05f2e4",
-    "to": "b4044fc2-1329-4de1-85e5-95f2229dcef3",
     "ss": {
       "userId": "b4044fc2-1329-4de1-85e5-95f2229dcef3",
       "host": "iOS",
@@ -125,16 +123,10 @@ Error Ack
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
-  // if to == string(userId): p2p only
-  // if to == object: m2m, a2m, p2p, send answer to session
-  "to": {
-    "userId": String, // the user id which shall be answered
-    "sessionId": String, // the session id which shall be answered
-  } | String,
   "sdp": String // SDP answer
 }
 ```
@@ -183,16 +175,10 @@ Error Ack
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
-  // if to == string(userId): p2p only
-  // if to == object: m2m, a2m, p2p, send ice to session
-  "to": {
-    "userId": String, // the user id which shall be sent
-    "sessionId": String, // the session id which shall be sent
-  } | String,
   "sdp": String // ice candidate
 }
 ```
@@ -242,7 +228,7 @@ Request the backend to provide offer SDP
     // Session category
     "category": "stream" | "screenshare",
     // Device type
-    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
+    "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio" | "Server",
     "deviceId": String
   },
   "rid": String, // room id
@@ -266,15 +252,6 @@ Contain the offer SDP for webrtc connection
       {
         "id": String,
         "sdp": String, // SDP offer, use this to create webrtc connection
-        "video": Bool,
-        "audio": Bool,
-        "username": String,
-        "fullname": String,
-        "avatar": String, // avatar url
-        "sessionId": String,
-        "host": "iOS" | "iOS_EX" | "Android" | "Web" | "Web_Studio",
-        "category": "stream" | "screenshare",
-        "deviceId": String
       }
     ],
     "rid": String
